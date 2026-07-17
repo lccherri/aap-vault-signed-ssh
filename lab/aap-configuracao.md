@@ -34,20 +34,40 @@ apos a criacao da credencial (a API do AAP criptografa o valor internamente).
 
 Validado com `POST /api/controller/v2/credentials/3/test/` — resposta `202`.
 
-## Inventario e teste funcional
+## Inventario
 
 - Inventario `POC Vault SSH - Inventory` (id 2), variavel
   `ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"`.
 - Host `rhel.gw8gc.sandbox2991.opentlc.com` (id 2).
-- Ad Hoc Command (`whoami`, credencial id 4) executado com sucesso contra o host.
-  stdout confirma emissao de certificado pelo Vault a cada execucao:
+
+## Project e Job Template
+
+- Project `AAP Vault Signed SSH - Demo` (id 7): SCM Git,
+  `https://github.com/lccherri/aap-vault-signed-ssh.git`, branch `main`,
+  `scm_update_on_launch=true`.
+- Job Template `Demo - Vault Signed SSH` (id 8): inventory id 2, project id 7,
+  playbook `playbooks/demo.yml`, credencial Machine id 4.
+- Execucao de referencia (job id 8) — sucesso, stdout confirma certificado novo a
+  cada run:
   ```
-  Identity added: /runner/artifacts/1/ssh_key_data (aap-vault-signed-ssh-poc)
-  Certificate added: /runner/artifacts/1/ssh_key_data-cert.pub (vault-approle-...)
-  rhel.gw8gc.sandbox2991.opentlc.com | CHANGED | rc=0 >>
-  ansible
+  Identity added: /runner/artifacts/8/ssh_key_data (aap-vault-signed-ssh-poc)
+  Certificate added: /runner/artifacts/8/ssh_key_data-cert.pub (vault-approle-...)
+  ...
+  TASK [Exibir evidencia] ***
+  ok: [rhel.gw8gc.sandbox2991.opentlc.com] => {
+      "msg": [
+          "Conexao autenticada via certificado SSH assinado pelo HashiCorp Vault.",
+          ...
+      ]
+  }
   ```
 
-Proximo passo: substituir o Ad Hoc Command por um Project + Job Template apontando
-para `playbooks/demo.yml` (passo 8 de `docs/guia-configuracao.md`), assim que o
-repositorio estiver disponivel em um remoto Git.
+## Incidente: Vault selado apos restart do pod
+
+Entre a criacao das credenciais e o teste do Job Template, o pod `vault-0` reiniciou
+(2 restarts) e voltou `Sealed=true` — Shamir de no unico, sem auto-unseal. O primeiro
+lancamento do Job Template falhou com `503 Service Unavailable` no login AppRole
+(`auth/approle/login`). Resolvido destravando novamente com as 3 unseal keys em
+`out/vault-init.json`. Reproduz na pratica o risco de SPOF descrito em
+`docs/POC-vault-ssh-aap-contexto.md` — jobs novos falham no lookup da credencial
+quando o Vault esta selado/indisponivel; e o comportamento esperado, nao um bug.
