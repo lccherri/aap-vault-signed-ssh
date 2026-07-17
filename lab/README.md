@@ -1,7 +1,7 @@
 # Ambiente de laboratorio
 
-Registro do ambiente usado para validar esta POC. Nao faz parte da solucao entregue
-ao cliente — ver `docs/guia-configuracao.md` para o passo a passo generico.
+Registro do ambiente usado para validar esta POC. Nao faz parte da solucao em si
+— ver `docs/guia-configuracao.md` para o passo a passo generico.
 
 | Arquivo | Conteudo |
 |---|---|

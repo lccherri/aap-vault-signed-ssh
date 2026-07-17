@@ -8,7 +8,6 @@ Substitui chave SSH estatica de longa duracao por certificados de curta duracao
 | Caminho | Conteudo |
 |---|---|
 | [`docs/guia-configuracao.md`](docs/guia-configuracao.md) | Passo a passo de configuracao — Vault, AAP, host gerenciado |
-| [`docs/POC-vault-ssh-aap-contexto.md`](docs/POC-vault-ssh-aap-contexto.md) | Escopo e decisao de arquitetura originais |
 | [`playbooks/demo.yml`](playbooks/demo.yml) | Playbook de demonstracao usado no Job Template do AAP |
 | [`scripts/vault/`](scripts/vault/) | Scripts que automatizam a configuracao do Vault (CA, role, policy, AppRole) |
 | `lab/` | Notas do ambiente de laboratorio usado para validar esta POC (nao faz parte da solucao) |

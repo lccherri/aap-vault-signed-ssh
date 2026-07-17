@@ -36,7 +36,7 @@ Cluster de workshop usado para validar a POC. Levantamento de 2026-07-17.
   Unseal keys e root token em `out/vault-init.json` (nao versionado).
 - Sem HA/auto-unseal: se o pod `vault-0` reiniciar, o Vault volta `Sealed` e precisa
   ser destravado de novo com as chaves em `out/vault-init.json`. Reproduz o risco de
-  SPOF descrito em `docs/POC-vault-ssh-aap-contexto.md`.
+  SPOF do Vault em producao (ver `lab/aap-configuracao.md` § Incidente).
 - SSH Secrets Engine, role, policy e AppRole configurados conforme
   `docs/guia-configuracao.md`, executado via `oc exec vault-0 -- vault ...` (sem
   `vault` CLI instalado localmente neste lab).

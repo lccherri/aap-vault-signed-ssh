@@ -1,7 +1,6 @@
 # Status da POC
 
-Rastreamento do escopo definido em `docs/POC-vault-ssh-aap-contexto.md` § "Escopo
-sugerido para a POC".
+Rastreamento do escopo original definido para esta POC.
 
 | # | Item | Status |
 |---|---|---|
@@ -13,9 +12,9 @@ sugerido para a POC".
 | 6 | Versao minima de OpenSSH para hosts legados RHEL 5/6 | Pendente — pesquisa documental |
 | 7 | Segmentacao por Organization/tenant no Vault | Pendente |
 
-## Perguntas em aberto para o cliente
+## Perguntas em aberto
 
-- Topologia atual do Vault em producao (single node vs HA).
+- Topologia do Vault em producao (single node vs HA).
 - Versao do OpenSSH nos hosts RHEL 5/6 legados.
 - Volume esperado de jobs concorrentes usando a credencial Vault, para dimensionar
   throughput.

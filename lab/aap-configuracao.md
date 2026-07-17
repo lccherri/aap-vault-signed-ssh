@@ -68,6 +68,6 @@ Entre a criacao das credenciais e o teste do Job Template, o pod `vault-0` reini
 (2 restarts) e voltou `Sealed=true` — Shamir de no unico, sem auto-unseal. O primeiro
 lancamento do Job Template falhou com `503 Service Unavailable` no login AppRole
 (`auth/approle/login`). Resolvido destravando novamente com as 3 unseal keys em
-`out/vault-init.json`. Reproduz na pratica o risco de SPOF descrito em
-`docs/POC-vault-ssh-aap-contexto.md` — jobs novos falham no lookup da credencial
-quando o Vault esta selado/indisponivel; e o comportamento esperado, nao um bug.
+`out/vault-init.json`. Reproduz na pratica o risco de SPOF do Vault em producao:
+jobs novos falham no lookup da credencial quando o Vault esta selado/indisponivel;
+e o comportamento esperado, nao um bug.
