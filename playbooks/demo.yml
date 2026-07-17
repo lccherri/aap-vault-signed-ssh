@@ -1,0 +1,24 @@
+---
+- name: Demonstracao AAP + Vault Signed SSH
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Gravar evidencia de execucao no host de destino
+      ansible.builtin.copy:
+        dest: /tmp/aap-vault-demo.txt
+        mode: "0644"
+        content: |
+          Conexao autenticada via certificado SSH assinado pelo HashiCorp Vault.
+          Host: {{ inventory_hostname }}
+          Usuario: {{ ansible_user_id }}
+          Executado em: {{ ansible_date_time.iso8601 }}
+
+    - name: Ler evidencia gravada
+      ansible.builtin.command: cat /tmp/aap-vault-demo.txt
+      register: evidencia
+      changed_when: false
+
+    - name: Exibir evidencia
+      ansible.builtin.debug:
+        msg: "{{ evidencia.stdout_lines }}"
