@@ -12,9 +12,9 @@ Disponibilizada em 2026-07-17.
 - OpenSSH: `OpenSSH_9.9p1` (pacote `openssh-server-9.9p1-7.el10_0.x86_64`).
 - SELinux: `Enforcing`.
 
-Host moderno — nao representa o cenario legado RHEL 5/6 do escopo original da POC.
-Serve para validar o fluxo funcional. Versao minima de OpenSSH para
-`TrustedUserCAKeys` em hosts legados segue como pesquisa separada.
+Suficiente para validar o fluxo funcional. Suporte a `TrustedUserCAKeys` depende da
+versao do OpenSSH do host gerenciado — ver pre-requisitos em
+`docs/guia-configuracao.md`.
 
 ## Configuracao aplicada
 
