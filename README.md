@@ -16,8 +16,3 @@ Substitui chave SSH estatica de longa duracao por certificados de curta duracao
 ## Referencia
 
 https://www.hashicorp.com/en/blog/managing-ansible-automation-platform-aap-credentials-at-scale-with-vault
-
-## `out/`
-
-Segredos gerados durante a configuracao do ambiente de lab (chaves, tokens,
-credenciais). Nao versionado.
