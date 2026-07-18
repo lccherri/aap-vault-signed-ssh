@@ -99,12 +99,23 @@ Scripts equivalentes aos passos 1-4: [`scripts/vault/`](../scripts/vault/).
 
 ## 5. Host gerenciado — confiar na CA
 
+Copiar o arquivo gerado no passo 1 para o host e aplicar a configuracao:
+
 ```bash
-# copiar trusted-user-ca-keys.pem para /etc/ssh/trusted-user-ca-keys.pem
+scp trusted-user-ca-keys.pem <usuario>@<host>:/tmp/trusted-user-ca-keys.pem
+
+ssh <usuario>@<host> <<'EOF'
+sudo mv /tmp/trusted-user-ca-keys.pem /etc/ssh/trusted-user-ca-keys.pem
+sudo chown root:root /etc/ssh/trusted-user-ca-keys.pem
+sudo chmod 644 /etc/ssh/trusted-user-ca-keys.pem
 echo 'TrustedUserCAKeys /etc/ssh/trusted-user-ca-keys.pem' \
-  > /etc/ssh/sshd_config.d/60-vault-ssh-ca.conf
-systemctl restart sshd
+  | sudo tee /etc/ssh/sshd_config.d/60-vault-ssh-ca.conf
+sudo systemctl restart sshd
+EOF
 ```
+
+Em escala, substituir esses dois comandos por um playbook/golden image, ja que todo
+host gerenciado precisa da mesma CA.
 
 Criar/garantir que o usuario definido em `allowed_users` (passo 2) existe no host.
 
