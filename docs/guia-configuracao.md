@@ -87,6 +87,12 @@ vault read -field=role_id auth/approle/role/aap-controller/role-id
 vault write -f -field=secret_id auth/approle/role/aap-controller/secret-id
 ```
 
+`role_id` e um identificador fixo do AppRole — `read` so consulta o valor ja
+existente, sem alterar nada. `secret_id` e gerado sob demanda a cada chamada —
+`write` dispara a criacao de um novo, com seu proprio TTL/numero de usos; o `-f`
+indica que a chamada nao precisa de dados de entrada. Rodar o `write` de novo gera
+um `secret_id` diferente a cada vez.
+
 Guardar `role_id` e `secret_id` — vao para a credencial do AAP no passo 6.
 
 Scripts equivalentes aos passos 1-4: [`scripts/vault/`](../scripts/vault/).
