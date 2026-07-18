@@ -121,6 +121,10 @@ Criar/garantir que o usuario definido em `allowed_users` (passo 2) existe no hos
 
 ## 6. AAP — credencial "HashiCorp Vault Signed SSH"
 
+Guarda apenas como o AAP se autentica no Vault (URL + AppRole). Sozinha, nao loga em
+nenhum host — e uma credencial do tipo "external"/lookup, usada por referencia no
+passo 7.
+
 **Credentials → Add**, tipo **HashiCorp Vault Signed SSH**.
 
 | Campo | Valor |
@@ -131,6 +135,12 @@ Criar/garantir que o usuario definido em `allowed_users` (passo 2) existe no hos
 | Path to Auth | `approle` |
 
 ## 7. AAP — credencial "Machine"
+
+Esta e a credencial que efetivamente faz SSH (username + chave privada). O campo
+"Signed SSH Certificate" e linkado a credencial do passo 6 em vez de receber um valor
+fixo: a cada execucao de job, o AAP autentica no Vault via AppRole e pede um
+certificado novo, assinando a chave publica estatica gerada abaixo. O certificado
+retornado (TTL de 30 min) vale so para aquela execucao e nunca fica salvo.
 
 Gerar um par de chaves estatico (uma vez, fora do AAP):
 
