@@ -26,20 +26,20 @@ Cluster de workshop usado para validar a POC. Levantamento de 2026-07-17.
   oc create route edge vault --service=vault --port=8200 -n vault
   ```
   Resultado: `https://vault-vault.apps.cluster-gxt8z.dyn.redhatworkshops.io`.
-- Inicializacao (unica vez):
+- Inicializacao (unica vez, bootstrap de plataforma):
   ```bash
   oc exec vault-0 -n vault -- vault operator init -key-shares=5 -key-threshold=3
-  oc exec vault-0 -n vault -- vault operator unseal <key1>
-  oc exec vault-0 -n vault -- vault operator unseal <key2>
-  oc exec vault-0 -n vault -- vault operator unseal <key3>
   ```
   Unseal keys e root token em `out/vault-init.json` (nao versionado).
 - Sem HA/auto-unseal: se o pod `vault-0` reiniciar, o Vault volta `Sealed` e precisa
-  ser destravado de novo com as chaves em `out/vault-init.json`. Reproduz o risco de
-  SPOF do Vault em producao (ver `lab/aap-configuracao.md` § Incidente).
-- SSH Secrets Engine, role, policy e AppRole configurados conforme
-  `docs/guia-configuracao.md`, executado via `oc exec vault-0 -- vault ...` (sem
-  `vault` CLI instalado localmente neste lab).
+  ser destravado de novo. Reproduz o risco de SPOF do Vault em producao (ver
+  `lab/aap-configuracao.md` § Incidente). Ja ocorreu mais de uma vez neste lab —
+  destravar com `out/unseal.sh` (usa o CLI local + as chaves em
+  `out/vault-init.json`).
+- Vault CLI instalado localmente (fora do OpenShift). SSH Secrets Engine, role,
+  policy e AppRole configurados a partir dele, conforme `docs/guia-configuracao.md`
+  — nao pelo `oc exec` no pod. A inicializacao (`vault operator init`), por ser
+  bootstrap de plataforma, foi feita uma unica vez via `oc exec`.
 - Artefatos gerados: `out/trusted-user-ca-keys.pem` (chave publica da CA),
   `out/approle-creds.env` (ROLE_ID/SECRET_ID do AppRole `aap-controller`).
 

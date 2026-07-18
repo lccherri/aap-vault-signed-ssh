@@ -14,6 +14,27 @@ ambiente de destino.
 - AAP 2.x (o credential type "HashiCorp Vault Signed SSH" ja vem incluido).
 - Host gerenciado com OpenSSH com suporte a `TrustedUserCAKeys` (OpenSSH >= 6.9,
   disponivel desde RHEL 7.x).
+- Vault CLI instalado na estacao de onde a configuracao sera feita:
+  https://developer.hashicorp.com/vault/install
+
+## Onde executar os comandos
+
+Os comandos `vault` dos passos 1-4 rodam a partir de uma estacao de trabalho com o
+Vault CLI instalado — nao dentro do AAP, nem dentro da plataforma (Kubernetes/
+OpenShift/VM) que hospeda o servidor Vault. Essa estacao so precisa de rede ate o
+Vault e de um token com permissao administrativa:
+
+```bash
+export VAULT_ADDR=https://vault.exemplo.com
+export VAULT_TOKEN=<token com permissao de admin>
+vault status
+```
+
+Isso mantem a responsabilidade de cada componente separada: quem administra o
+Vault configura a CA, a role, a policy e o AppRole a partir do proprio Vault CLI;
+o AAP so consome essas credenciais atraves do credential plugin, sem acesso
+administrativo ao Vault; a plataforma que hospeda o Vault (OpenShift, neste
+laboratorio) e responsavel apenas por manter o servico no ar.
 
 ## 1. Vault — habilitar o SSH Secrets Engine e gerar a CA
 
