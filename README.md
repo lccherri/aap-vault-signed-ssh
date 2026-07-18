@@ -1,17 +1,17 @@
 # POC: SSH assinado via HashiCorp Vault + AAP
 
-Substitui chave SSH estatica de longa duracao por certificados de curta duracao
-(30 min), assinados sob demanda pelo Vault a cada execucao de job no AAP.
+Substitui chave SSH estática de longa duração por certificados de curta duração
+(30 min), assinados sob demanda pelo Vault a cada execução de job no AAP.
 
 ## Estrutura
 
-| Caminho | Conteudo |
+| Caminho | Conteúdo |
 |---|---|
-| [`docs/guia-configuracao.md`](docs/guia-configuracao.md) | Passo a passo de configuracao — Vault, AAP, host gerenciado |
-| [`playbooks/demo.yml`](playbooks/demo.yml) | Playbook de demonstracao usado no Job Template do AAP |
-| [`scripts/vault/`](scripts/vault/) | Scripts que automatizam a configuracao do Vault (CA, role, policy, AppRole) |
-| `lab/` | Notas do ambiente de laboratorio usado para validar esta POC (nao faz parte da solucao) |
+| [`docs/guia-configuracao.md`](docs/guia-configuracao.md) | Passo a passo de configuração — Vault, AAP, host gerenciado |
+| [`playbooks/demo.yml`](playbooks/demo.yml) | Playbook de demonstração usado no Job Template do AAP |
+| [`scripts/vault/`](scripts/vault/) | Scripts que automatizam a configuração do Vault (CA, role, policy, AppRole) |
+| `lab/` | Notas do ambiente de laboratório usado para validar esta POC (não faz parte da solução) |
 
-## Referencia
+## Referência
 
 https://www.hashicorp.com/en/blog/managing-ansible-automation-platform-aap-credentials-at-scale-with-vault

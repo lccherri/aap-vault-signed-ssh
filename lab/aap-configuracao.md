@@ -1,18 +1,18 @@
 # Credenciais criadas neste lab
 
 Criadas via API do Controller (`/api/controller/v2/...`), autenticando como `admin`
-atraves da rota do Gateway. Mesmos campos e valores da UI — ver
-`docs/guia-configuracao.md` para o procedimento generico.
+através da rota do Gateway. Mesmos campos e valores da UI — ver
+`docs/guia-configuracao.md` para o procedimento genérico.
 
 ## Credenciais
 
 | Nome | Tipo | ID | Inputs |
 |---|---|---|---|
 | `Vault SSH CA - POC` | HashiCorp Vault Signed SSH (credential_type 30) | 3 | `url`, `role_id`, `secret_id` (AppRole `aap-controller`), `default_auth_path=approle` |
-| `Ansible Machine - Vault Signed SSH - POC` | Machine (credential_type 7) | 4 | `username=ansible`, `ssh_key_data=<chave privada estatica>` |
+| `Ansible Machine - Vault Signed SSH - POC` | Machine (credential_type 7) | 4 | `username=ansible`, `ssh_key_data=<chave privada estática>` |
 
-Par de chaves gerado uma unica vez com `ssh-keygen -t rsa -b 2048`, nao persistido
-apos a criacao da credencial (a API do AAP criptografa o valor internamente).
+Par de chaves gerado uma única vez com `ssh-keygen -t rsa -b 2048`, não persistido
+após a criação da credencial (a API do AAP criptografa o valor internamente).
 
 ## Input Source
 
@@ -34,9 +34,9 @@ apos a criacao da credencial (a API do AAP criptografa o valor internamente).
 
 Validado com `POST /api/controller/v2/credentials/3/test/` — resposta `202`.
 
-## Inventario
+## Inventário
 
-- Inventario `POC Vault SSH - Inventory` (id 2), variavel
+- Inventário `POC Vault SSH - Inventory` (id 2), variável
   `ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"`.
 - Host `rhel.gw8gc.sandbox2991.opentlc.com` (id 2).
 
@@ -47,7 +47,7 @@ Validado com `POST /api/controller/v2/credentials/3/test/` — resposta `202`.
   `scm_update_on_launch=true`.
 - Job Template `Demo - Vault Signed SSH` (id 8): inventory id 2, project id 7,
   playbook `playbooks/demo.yml`, credencial Machine id 4.
-- Execucao de referencia (job id 8) — sucesso, stdout confirma certificado novo a
+- Execução de referência (job id 8) — sucesso, stdout confirma certificado novo a
   cada run:
   ```
   Identity added: /runner/artifacts/8/ssh_key_data (aap-vault-signed-ssh-poc)
@@ -62,12 +62,12 @@ Validado com `POST /api/controller/v2/credentials/3/test/` — resposta `202`.
   }
   ```
 
-## Incidente: Vault selado apos restart do pod
+## Incidente: Vault selado após restart do pod
 
-Entre a criacao das credenciais e o teste do Job Template, o pod `vault-0` reiniciou
-(2 restarts) e voltou `Sealed=true` — Shamir de no unico, sem auto-unseal. O primeiro
-lancamento do Job Template falhou com `503 Service Unavailable` no login AppRole
+Entre a criação das credenciais e o teste do Job Template, o pod `vault-0` reiniciou
+(2 restarts) e voltou `Sealed=true` — Shamir de nó único, sem auto-unseal. O primeiro
+lançamento do Job Template falhou com `503 Service Unavailable` no login AppRole
 (`auth/approle/login`). Resolvido destravando novamente com as 3 unseal keys em
-`out/vault-init.json`. Reproduz na pratica o risco de SPOF do Vault em producao:
-jobs novos falham no lookup da credencial quando o Vault esta selado/indisponivel;
-e o comportamento esperado, nao um bug.
+`out/vault-init.json`. Reproduz na prática o risco de SPOF do Vault em produção:
+jobs novos falham no lookup da credencial quando o Vault está selado/indisponível;
+é o comportamento esperado, não um bug.

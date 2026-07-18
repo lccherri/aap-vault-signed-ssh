@@ -1,12 +1,12 @@
-# Ambiente de laboratorio
+# Ambiente de laboratório
 
-Registro do ambiente usado para validar esta POC. Nao faz parte da solucao em si
-— ver `docs/guia-configuracao.md` para o passo a passo generico.
+Registro do ambiente usado para validar esta POC. Não faz parte da solução em si
+— ver `docs/guia-configuracao.md` para o passo a passo genérico.
 
-| Arquivo | Conteudo |
+| Arquivo | Conteúdo |
 |---|---|
 | `ambiente.md` | Acesso ao cluster, AAP e Vault usados no lab |
-| `vm-rhel.md` | VM RHEL de teste: acesso e configuracao aplicada |
+| `vm-rhel.md` | VM RHEL de teste: acesso e configuração aplicada |
 | `aap-configuracao.md` | Credenciais e objetos criados no AAP deste lab, com IDs |
 | `plano-execucao.md` | Status de cada item do escopo da POC |
-| `deploy-vault-dev.sh` | Script de referencia para subir um Vault em modo dev (nao usado neste lab) |
+| `deploy-vault-dev.sh` | Script de referência para subir um Vault em modo dev (não usado neste lab) |

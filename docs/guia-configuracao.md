@@ -1,28 +1,28 @@
-# Guia de configuracao: SSH assinado via HashiCorp Vault no AAP
+# Guia de configuração: SSH assinado via HashiCorp Vault no AAP
 
 Passo a passo para reproduzir o modelo de credencial em qualquer ambiente com Vault
 e AAP. Baseado em:
 https://www.hashicorp.com/en/blog/managing-ansible-automation-platform-aap-credentials-at-scale-with-vault
 
-Substitua os valores de exemplo (URLs, nomes de role/policy, usuario) pelos do
+Substitua os valores de exemplo (URLs, nomes de role/policy, usuário) pelos do
 ambiente de destino.
 
-## Pre-requisitos
+## Pré-requisitos
 
-- Vault acessivel via HTTPS a partir do AAP, com permissao para habilitar um
+- Vault acessível via HTTPS a partir do AAP, com permissão para habilitar um
   secrets engine e um auth method.
-- AAP 2.x (o credential type "HashiCorp Vault Signed SSH" ja vem incluido).
+- AAP 2.x (o credential type "HashiCorp Vault Signed SSH" já vem incluído).
 - Host gerenciado com OpenSSH com suporte a `TrustedUserCAKeys` (OpenSSH >= 6.9,
-  disponivel desde RHEL 7.x).
-- Vault CLI instalado na estacao de onde a configuracao sera feita:
+  disponível desde RHEL 7.x).
+- Vault CLI instalado na estação de onde a configuração será feita:
   https://developer.hashicorp.com/vault/install
 
 ## Onde executar os comandos
 
-Os comandos `vault` dos passos 1-4 rodam a partir de uma estacao de trabalho com o
-Vault CLI instalado — nao dentro do AAP, nem dentro da plataforma (Kubernetes/
-OpenShift/VM) que hospeda o servidor Vault. Essa estacao so precisa de rede ate o
-Vault e de um token com permissao administrativa:
+Os comandos `vault` dos passos 1-4 rodam a partir de uma estação de trabalho com o
+Vault CLI instalado — não dentro do AAP, nem dentro da plataforma (Kubernetes/
+OpenShift/VM) que hospeda o servidor Vault. Essa estação só precisa de rede até o
+Vault e de um token com permissão administrativa:
 
 ```bash
 export VAULT_ADDR=https://vault.exemplo.com
@@ -30,11 +30,11 @@ export VAULT_TOKEN=<token com permissao de admin>
 vault status
 ```
 
-Isso mantem a responsabilidade de cada componente separada: quem administra o
-Vault configura a CA, a role, a policy e o AppRole a partir do proprio Vault CLI;
-o AAP so consome essas credenciais atraves do credential plugin, sem acesso
+Isso mantém a responsabilidade de cada componente separada: quem administra o
+Vault configura a CA, a role, a policy e o AppRole a partir do próprio Vault CLI;
+o AAP só consome essas credenciais através do credential plugin, sem acesso
 administrativo ao Vault; a plataforma que hospeda o Vault (OpenShift, neste
-laboratorio) e responsavel apenas por manter o servico no ar.
+laboratório) é responsável apenas por manter o serviço no ar.
 
 ## 1. Vault — habilitar o SSH Secrets Engine e gerar a CA
 
@@ -63,9 +63,9 @@ EOF
 ```
 
 `allowed_users` define quais usernames podem receber certificado assinado. Deve
-corresponder ao usuario configurado na credencial Machine do AAP (passo 7).
+corresponder ao usuário configurado na credencial Machine do AAP (passo 7).
 
-## 3. Vault — policy de acesso minimo
+## 3. Vault — policy de acesso mínimo
 
 ```bash
 vault policy write aap-ssh-signer - <<EOF
@@ -87,19 +87,19 @@ vault read -field=role_id auth/approle/role/aap-controller/role-id
 vault write -f -field=secret_id auth/approle/role/aap-controller/secret-id
 ```
 
-`role_id` e um identificador fixo do AppRole — `read` so consulta o valor ja
-existente, sem alterar nada. `secret_id` e gerado sob demanda a cada chamada —
-`write` dispara a criacao de um novo, com seu proprio TTL/numero de usos; o `-f`
-indica que a chamada nao precisa de dados de entrada. Rodar o `write` de novo gera
+`role_id` é um identificador fixo do AppRole — `read` só consulta o valor já
+existente, sem alterar nada. `secret_id` é gerado sob demanda a cada chamada —
+`write` dispara a criação de um novo, com seu próprio TTL/número de usos; o `-f`
+indica que a chamada não precisa de dados de entrada. Rodar o `write` de novo gera
 um `secret_id` diferente a cada vez.
 
-Guardar `role_id` e `secret_id` — vao para a credencial do AAP no passo 6.
+Guardar `role_id` e `secret_id` — vão para a credencial do AAP no passo 6.
 
 Scripts equivalentes aos passos 1-4: [`scripts/vault/`](../scripts/vault/).
 
 ## 5. Host gerenciado — confiar na CA
 
-Copiar o arquivo gerado no passo 1 para o host e aplicar a configuracao:
+Copiar o arquivo gerado no passo 1 para o host e aplicar a configuração:
 
 ```bash
 scp trusted-user-ca-keys.pem <usuario>@<host>:/tmp/trusted-user-ca-keys.pem
@@ -114,15 +114,15 @@ sudo systemctl restart sshd
 EOF
 ```
 
-Em escala, substituir esses dois comandos por um playbook/golden image, ja que todo
+Em escala, substituir esses dois comandos por um playbook/golden image, já que todo
 host gerenciado precisa da mesma CA.
 
-Criar/garantir que o usuario definido em `allowed_users` (passo 2) existe no host.
+Criar/garantir que o usuário definido em `allowed_users` (passo 2) existe no host.
 
 ## 6. AAP — credencial "HashiCorp Vault Signed SSH"
 
-Guarda apenas como o AAP se autentica no Vault (URL + AppRole). Sozinha, nao loga em
-nenhum host — e uma credencial do tipo "external"/lookup, usada por referencia no
+Guarda apenas como o AAP se autentica no Vault (URL + AppRole). Sozinha, não loga em
+nenhum host — é uma credencial do tipo "external"/lookup, usada por referência no
 passo 7.
 
 **Credentials → Add**, tipo **HashiCorp Vault Signed SSH**.
@@ -136,13 +136,13 @@ passo 7.
 
 ## 7. AAP — credencial "Machine"
 
-Esta e a credencial que efetivamente faz SSH (username + chave privada). O campo
-"Signed SSH Certificate" e linkado a credencial do passo 6 em vez de receber um valor
-fixo: a cada execucao de job, o AAP autentica no Vault via AppRole e pede um
-certificado novo, assinando a chave publica estatica gerada abaixo. O certificado
-retornado (TTL de 30 min) vale so para aquela execucao e nunca fica salvo.
+Esta é a credencial que efetivamente faz SSH (username + chave privada). O campo
+"Signed SSH Certificate" é linkado à credencial do passo 6 em vez de receber um valor
+fixo: a cada execução de job, o AAP autentica no Vault via AppRole e pede um
+certificado novo, assinando a chave pública estática gerada abaixo. O certificado
+retornado (TTL de 30 min) vale só para aquela execução e nunca fica salvo.
 
-Gerar um par de chaves estatico (uma vez, fora do AAP):
+Gerar um par de chaves estático (uma vez, fora do AAP):
 
 ```bash
 ssh-keygen -t rsa -b 2048 -f aap-machine-key -N ""
@@ -153,37 +153,37 @@ ssh-keygen -t rsa -b 2048 -f aap-machine-key -N ""
 | Campo | Valor |
 |---|---|
 | Username | `ansible` (mesmo valor de `allowed_users` no passo 2) |
-| SSH Private Key | conteudo de `aap-machine-key` |
+| SSH Private Key | conteúdo de `aap-machine-key` |
 
-No campo **Signed SSH Certificate**, clicar no icone de link e selecionar a
+No campo **Signed SSH Certificate**, clicar no ícone de link e selecionar a
 credencial criada no passo 6 como Input Source. Preencher:
 
 | Campo (metadata) | Valor |
 |---|---|
-| Unsigned Public Key | conteudo de `aap-machine-key.pub` |
+| Unsigned Public Key | conteúdo de `aap-machine-key.pub` |
 | Path to Secret | `ssh` |
 | Role Name | `aap-role` |
 | Valid Principals | `ansible` |
 
 Clicar **Test** — deve retornar sucesso antes de salvar.
 
-Nao linkar o campo "SSH Private Key" ao Vault: ele permanece com o valor estatico
-colado acima. O campo linkado e o "Signed SSH Certificate" — e o que muda a cada
-execucao de job, com um certificado novo emitido pelo Vault e validade de 30
+Não linkar o campo "SSH Private Key" ao Vault: ele permanece com o valor estático
+colado acima. O campo linkado é o "Signed SSH Certificate" — é o que muda a cada
+execução de job, com um certificado novo emitido pelo Vault e validade de 30
 minutos (TTL definido no passo 2).
 
-## 8. AAP — Project e Job Template de demonstracao
+## 8. AAP — Project e Job Template de demonstração
 
-1. **Projects → Add**: SCM Type = Git, URL do repositorio deste projeto.
+1. **Projects → Add**: SCM Type = Git, URL do repositório deste projeto.
 2. **Templates → Add Job Template**:
-   - Inventory: inventario com o(s) host(s) de teste.
+   - Inventory: inventário com o(s) host(s) de teste.
    - Project: o project criado acima.
    - Playbook: `playbooks/demo.yml`.
    - Credentials: a credencial Machine criada no passo 7.
 3. **Launch**. O job busca um certificado novo no Vault, conecta ao host via
    certificado e grava `/tmp/aap-vault-demo.txt` no destino.
 
-## Verificacao
+## Verificação
 
 No host de destino, o login autenticado por certificado aparece no log do sshd:
 
@@ -191,5 +191,5 @@ No host de destino, o login autenticado por certificado aparece no log do sshd:
 journalctl -u sshd | grep RSA-CERT
 ```
 
-A linha mostra `RSA-CERT`, o `Key ID` gerado pelo Vault e a impressao digital da
-CA — confirma que a autenticacao usou o certificado, nao uma chave estatica.
+A linha mostra `RSA-CERT`, o `Key ID` gerado pelo Vault e a impressão digital da
+CA — confirma que a autenticação usou o certificado, não uma chave estática.
