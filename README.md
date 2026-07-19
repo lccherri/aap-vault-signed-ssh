@@ -3,6 +3,34 @@
 Substitui chave SSH estática de longa duração por certificados de curta duração
 (30 min), assinados sob demanda pelo Vault a cada execução de job no AAP.
 
+## Como funciona
+
+```mermaid
+sequenceDiagram
+    participant Op as Operador
+    participant AAP as AAP (Job Template)
+    participant Vault as HashiCorp Vault
+    participant Host as Host gerenciado (sshd)
+
+    Op->>AAP: Launch Job Template
+    AAP->>Vault: POST auth/approle/login (role_id + secret_id)
+    Vault-->>AAP: token de acesso (AppRole)
+    AAP->>Vault: POST ssh/sign/aap-role (chave publica estatica + valid_principals)
+    Vault-->>AAP: certificado assinado (TTL 30 min)
+    Note over AAP: identidade da sessao = chave privada estatica + certificado novo
+    AAP->>Host: conexao SSH com chave + certificado
+    Host->>Host: valida certificado contra TrustedUserCAKeys (offline, sem chamar o Vault)
+    Host-->>AAP: sessao autenticada (principal = usuario)
+    AAP->>Host: executa o playbook
+    Note over Vault,Host: certificado expira em 30 min - nenhuma chave de longa duracao envolvida
+```
+
+A chave privada usada pelo AAP é estática (gerada uma vez), mas sozinha não abre
+sessão em lugar nenhum — o host só confia em conexões acompanhadas de um
+certificado válido assinado pela CA do Vault. Como o certificado expira em 30
+minutos, uma credencial vazada perde valor rapidamente sem precisar de revogação
+manual.
+
 ## Estrutura
 
 | Caminho | Conteúdo |
