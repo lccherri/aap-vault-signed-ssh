@@ -34,7 +34,7 @@ Cluster de workshop usado para validar a POC. Levantamento de 2026-07-17.
 - Sem HA/auto-unseal: se o pod `vault-0` reiniciar, o Vault volta `Sealed` e precisa
   ser destravado de novo. Reproduz o risco de SPOF do Vault em produção (ver
   `lab/aap-configuracao.md` § Incidente). Já ocorreu mais de uma vez neste lab —
-  destravar com `out/unseal.sh` (usa o CLI local + as chaves em
+  destravar com `lab/unseal.sh` (usa o CLI local + as chaves em
   `out/vault-init.json`).
 - Vault CLI instalado localmente (fora do OpenShift). SSH Secrets Engine, role,
   policy e AppRole configurados a partir dele, conforme `docs/guia-configuracao.md`
