@@ -42,4 +42,4 @@ manual.
 
 ## Referência
 
-https://www.hashicorp.com/en/blog/managing-ansible-automation-platform-aap-credentials-at-scale-with-vault
+[Managing Ansible Automation Platform (AAP) credentials at scale with Vault](https://www.hashicorp.com/en/blog/managing-ansible-automation-platform-aap-credentials-at-scale-with-vault)
