@@ -124,16 +124,23 @@ ssh <usuario>@<host> <<'EOF'
 sudo mv /tmp/trusted-user-ca-keys.pem /etc/ssh/trusted-user-ca-keys.pem
 sudo chown root:root /etc/ssh/trusted-user-ca-keys.pem
 sudo chmod 644 /etc/ssh/trusted-user-ca-keys.pem
+# Em hosts com SELinux (RHEL e derivados): sem isso o arquivo fica com o
+# contexto herdado de /tmp e o sshd, confinado, nao consegue le-lo — a
+# autenticacao por certificado falha silenciosamente. Nao se aplica a
+# distros sem SELinux.
+sudo restorecon -v /etc/ssh/trusted-user-ca-keys.pem
+sudo useradd -m -s /bin/bash ansible || true
 echo 'TrustedUserCAKeys /etc/ssh/trusted-user-ca-keys.pem' \
   | sudo tee /etc/ssh/sshd_config.d/60-vault-ssh-ca.conf
 sudo systemctl restart sshd
 EOF
 ```
 
+`ansible` no `useradd` deve ser o mesmo valor de `allowed_users`/`default_user`
+definido no passo 2.
+
 Em escala, substituir esses dois comandos por um playbook/golden image, já que todo
 host gerenciado precisa da mesma CA.
-
-Criar/garantir que o usuário definido em `allowed_users` (passo 2) existe no host.
 
 ## 6. AAP — credencial "HashiCorp Vault Signed SSH"
 
