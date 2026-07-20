@@ -38,6 +38,10 @@ laboratório) é responsável apenas por manter o serviço no ar.
 
 ## 1. Vault — habilitar o SSH Secrets Engine e gerar a CA
 
+Transforma o Vault em uma autoridade certificadora (CA) de SSH. A chave gerada aqui
+é o que os hosts gerenciados vão passar a confiar, no lugar de uma chave estática —
+por isso a chave pública precisa ser distribuída a cada host (passo 5).
+
 ```bash
 vault secrets enable -path=ssh ssh
 vault write ssh/config/ca generate_signing_key=true
@@ -48,6 +52,10 @@ Distribuir `trusted-user-ca-keys.pem` para `/etc/ssh/trusted-user-ca-keys.pem` e
 cada host gerenciado (via playbook ou golden image).
 
 ## 2. Vault — role de assinatura
+
+Define as regras que a CA aplica sempre que assina um certificado por essa role:
+para quais usuários, por quanto tempo (`ttl`) e com qual algoritmo. Qualquer
+certificado emitido fora desses limites é rejeitado pelo Vault.
 
 ```bash
 vault write ssh/roles/aap-role - <<EOF
@@ -67,6 +75,10 @@ corresponder ao usuário configurado na credencial Machine do AAP (passo 7).
 
 ## 3. Vault — policy de acesso mínimo
 
+Controla o que a identidade do AAP pode fazer dentro do Vault — não se confunde com
+a role do passo 2, que controla o que um certificado pode conter. Aqui restringimos
+o AAP a apenas pedir assinaturas pela role `aap-role` e ler a CA, nada além disso.
+
 ```bash
 vault policy write aap-ssh-signer - <<EOF
 path "ssh/sign/aap-role" { capabilities = ["create","update"] }
@@ -75,6 +87,10 @@ EOF
 ```
 
 ## 4. Vault — AppRole para o AAP autenticar
+
+Cria a identidade de máquina que o AAP vai usar para se autenticar no Vault e
+receber um token com a policy do passo 3 — sem depender de um usuário humano nem de
+uma senha fixa. `role_id` funciona como identificador, `secret_id` como segredo.
 
 ```bash
 vault auth enable approle
